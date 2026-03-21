@@ -1,0 +1,18 @@
+{
+  "elements": [
+    {
+      "type": "ValidationTextBox",
+      "name": "ExportFilename",
+      "caption": "Dateiname (ohne Pfad)",
+      "value": "objecttree.json"
+    }
+  ],
+  "actions": [
+    {
+      "type": "Button",
+      "caption": "Objektbaum exportieren",
+      "onClick": "OBE_ExportObjectTree($id);"
+    }
+  ],
+  "status": []
+}

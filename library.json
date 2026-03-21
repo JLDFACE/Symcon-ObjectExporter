@@ -1,0 +1,10 @@
+{
+  "id": "{F3A1B2C4-D5E6-7890-ABCD-EF1234560001}",
+  "author": "FACE GmbH",
+  "name": "Object Tree Exporter",
+  "url": "https://github.com/JLDFACE/Symcon-ObjectExporter",
+  "compatibility": { "version": "7.0" },
+  "version": "1.0",
+  "build": 1,
+  "date": 20260315
+}
