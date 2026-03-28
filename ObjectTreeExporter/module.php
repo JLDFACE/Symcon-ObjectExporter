@@ -30,6 +30,12 @@ class ObjectTreeExporter extends IPSModule
         }
 
         $webDir = IPS_GetKernelDir() . 'webfront/user/';
+        if (!is_dir($webDir)) {
+            if (!mkdir($webDir, 0755, true)) {
+                echo $this->Translate('Verzeichnis konnte nicht erstellt werden: ') . $webDir;
+                return false;
+            }
+        }
         $fullPath = $webDir . $filename;
 
         $tree = $this->BuildTree(0);
