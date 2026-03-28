@@ -32,33 +32,25 @@ class ObjectTreeExporter extends IPSModule
         $tree = $this->BuildTree(0);
         $json = json_encode($tree, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
-        // Primär: webfront/user/ (web-zugänglich)
-        $webDir = IPS_GetKernelDir() . 'webfront/user/';
-        if (!is_dir($webDir)) {
-            @mkdir($webDir, 0755, true);
+        // Media-Objekt erstellen oder wiederverwenden
+        $ident = 'ObjectTreeExport';
+        $mediaID = @IPS_GetObjectIDByIdent($ident, $this->InstanceID);
+        if ($mediaID === false) {
+            $mediaID = IPS_CreateMedia(1);
+            IPS_SetParent($mediaID, $this->InstanceID);
+            IPS_SetIdent($mediaID, $ident);
+            IPS_SetName($mediaID, $filename);
+            IPS_SetMediaFile($mediaID, $filename, false);
         }
+        IPS_SetMediaContent($mediaID, base64_encode($json));
 
-        if (is_dir($webDir) && is_writable($webDir)) {
-            $fullPath = $webDir . $filename;
-            file_put_contents($fullPath, $json);
-
-            $connectIDs = IPS_GetInstanceListByModuleID('{9486D575-BE8C-4ED8-B5B5-20930E26DE6F}');
-            if (!empty($connectIDs)) {
-                $baseURL = rtrim(CC_GetConnectURL($connectIDs[0]), '/');
-            } else {
-                $baseURL = 'http://' . gethostbyname(gethostname()) . ':3777';
-            }
-            echo $this->Translate('Download verfügbar unter: ') . $baseURL . '/user/' . $filename;
+        $connectIDs = IPS_GetInstanceListByModuleID('{9486D575-BE8C-4ED8-B5B5-20930E26DE6F}');
+        if (!empty($connectIDs)) {
+            $baseURL = rtrim(CC_GetConnectURL($connectIDs[0]), '/');
         } else {
-            // Fallback: scripts/-Ordner
-            $fullPath = IPS_GetKernelDir() . 'scripts/' . $filename;
-            if (file_put_contents($fullPath, $json) === false) {
-                echo $this->Translate('Datei konnte nicht geschrieben werden: ') . $fullPath;
-                return false;
-            }
-            echo $this->Translate('Datei gespeichert unter: ') . $fullPath;
+            $baseURL = 'http://' . gethostbyname(gethostname()) . ':3777';
         }
-
+        echo $this->Translate('Download verfügbar unter: ') . $baseURL . '/media/' . $mediaID . '/' . $filename;
         return true;
     }
 
