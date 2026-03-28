@@ -29,34 +29,36 @@ class ObjectTreeExporter extends IPSModule
             $filename .= '.json';
         }
 
-        $webDir = IPS_GetKernelDir() . 'webfront/user/';
-        echo 'Zielverzeichnis: ' . $webDir . "\n";
-        if (!is_dir($webDir)) {
-            echo 'Verzeichnis existiert nicht, versuche anzulegen...' . "\n";
-            if (!@mkdir($webDir, 0755, true)) {
-                $err = error_get_last();
-                echo $this->Translate('Verzeichnis konnte nicht erstellt werden: ') . $webDir . ' (' . ($err['message'] ?? 'unbekannt') . ')';
-                return false;
-            }
-            echo 'Verzeichnis erstellt.' . "\n";
-        }
-        $fullPath = $webDir . $filename;
-
         $tree = $this->BuildTree(0);
         $json = json_encode($tree, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
-        if (file_put_contents($fullPath, $json) === false) {
-            echo $this->Translate('Datei konnte nicht geschrieben werden: ') . $fullPath;
-            return false;
+        // Primär: webfront/user/ (web-zugänglich)
+        $webDir = IPS_GetKernelDir() . 'webfront/user/';
+        if (!is_dir($webDir)) {
+            @mkdir($webDir, 0755, true);
         }
 
-        $connectIDs = IPS_GetInstanceListByModuleID('{9486D575-BE8C-4ED8-B5B5-20930E26DE6F}');
-        if (!empty($connectIDs)) {
-            $baseURL = rtrim(CC_GetConnectURL($connectIDs[0]), '/');
+        if (is_dir($webDir) && is_writable($webDir)) {
+            $fullPath = $webDir . $filename;
+            file_put_contents($fullPath, $json);
+
+            $connectIDs = IPS_GetInstanceListByModuleID('{9486D575-BE8C-4ED8-B5B5-20930E26DE6F}');
+            if (!empty($connectIDs)) {
+                $baseURL = rtrim(CC_GetConnectURL($connectIDs[0]), '/');
+            } else {
+                $baseURL = 'http://' . gethostbyname(gethostname()) . ':3777';
+            }
+            echo $this->Translate('Download verfügbar unter: ') . $baseURL . '/user/' . $filename;
         } else {
-            $baseURL = 'http://' . gethostbyname(gethostname()) . ':3777';
+            // Fallback: scripts/-Ordner
+            $fullPath = IPS_GetKernelDir() . 'scripts/' . $filename;
+            if (file_put_contents($fullPath, $json) === false) {
+                echo $this->Translate('Datei konnte nicht geschrieben werden: ') . $fullPath;
+                return false;
+            }
+            echo $this->Translate('Datei gespeichert unter: ') . $fullPath;
         }
-        echo $this->Translate('Download verfügbar unter: ') . $baseURL . '/user/' . $filename;
+
         return true;
     }
 
