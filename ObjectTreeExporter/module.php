@@ -32,25 +32,7 @@ class ObjectTreeExporter extends IPSModule
         $tree = $this->BuildTree(0);
         $json = json_encode($tree, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
-        // Media-Objekt erstellen oder wiederverwenden
-        $ident = 'ObjectTreeExport';
-        $mediaID = @IPS_GetObjectIDByIdent($ident, $this->InstanceID);
-        if ($mediaID === false) {
-            $mediaID = IPS_CreateMedia(1);
-            IPS_SetParent($mediaID, $this->InstanceID);
-            IPS_SetIdent($mediaID, $ident);
-            IPS_SetName($mediaID, $filename);
-            IPS_SetMediaFile($mediaID, $filename, false);
-        }
-        IPS_SetMediaContent($mediaID, base64_encode($json));
-
-        $connectIDs = IPS_GetInstanceListByModuleID('{9486D575-BE8C-4ED8-B5B5-20930E26DE6F}');
-        if (!empty($connectIDs)) {
-            $baseURL = rtrim(CC_GetConnectURL($connectIDs[0]), '/');
-        } else {
-            $baseURL = 'http://' . gethostbyname(gethostname()) . ':3777';
-        }
-        echo $this->Translate('Download verfügbar unter: ') . $baseURL . '/media/' . $mediaID . '/' . $filename;
+        echo $json;
         return true;
     }
 
