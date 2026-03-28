@@ -30,11 +30,15 @@ class ObjectTreeExporter extends IPSModule
         }
 
         $webDir = IPS_GetKernelDir() . 'webfront/user/';
+        echo 'Zielverzeichnis: ' . $webDir . "\n";
         if (!is_dir($webDir)) {
-            if (!mkdir($webDir, 0755, true)) {
-                echo $this->Translate('Verzeichnis konnte nicht erstellt werden: ') . $webDir;
+            echo 'Verzeichnis existiert nicht, versuche anzulegen...' . "\n";
+            if (!@mkdir($webDir, 0755, true)) {
+                $err = error_get_last();
+                echo $this->Translate('Verzeichnis konnte nicht erstellt werden: ') . $webDir . ' (' . ($err['message'] ?? 'unbekannt') . ')';
                 return false;
             }
+            echo 'Verzeichnis erstellt.' . "\n";
         }
         $fullPath = $webDir . $filename;
 
