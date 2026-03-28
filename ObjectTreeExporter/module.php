@@ -46,7 +46,13 @@ class ObjectTreeExporter extends IPSModule
             return false;
         }
 
-        echo $this->Translate('Download verfügbar unter: ') . 'http://[SymBox-IP]:3777/user/' . $filename;
+        $connectIDs = IPS_GetInstanceListByModuleID('{9486D575-BE8C-4ED8-B5B5-20930E26DE6F}');
+        if (!empty($connectIDs)) {
+            $baseURL = rtrim(CC_GetConnectURL($connectIDs[0]), '/');
+        } else {
+            $baseURL = 'http://' . gethostbyname(gethostname()) . ':3777';
+        }
+        echo $this->Translate('Download verfügbar unter: ') . $baseURL . '/user/' . $filename;
         return true;
     }
 
